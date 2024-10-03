@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
-import Home from './components/Home';
+import Template from './components/Template';
 import authService from './services/authService';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={token ? <Home token={token} logout={logout} /> : <Navigate to="/login" />}
+          element={token ? <Template token={token} logout={logout} /> : <Navigate to="/login" />}
         />
         <Route path="/login" element={<Login setToken={setToken} />} />
         <Route path="/register" element={<Register />} />
