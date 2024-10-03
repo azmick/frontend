@@ -1,32 +1,14 @@
-/* Desktop view için sağ tarafa hizalanmış menü */
-.menu-desktop {
-    display: none;
+/* Home.css */
+@media (min-width: 1024px) {
+  .responsive-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
   }
-  
-  .menu-mobile {
+}
+
+@media (max-width: 768px) {
+  .responsive-grid {
     display: block;
   }
-  
-  @media screen and (min-width: 768px) {
-    .menu-desktop {
-      display: flex;
-      align-items: center;
-    }
-  
-    .menu-mobile {
-      display: none;
-    }
-  }
-  
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-  
+}

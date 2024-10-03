@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Menu, Button, Row, Col, Typography, Card, Drawer } from 'antd';
+import { Layout, Menu, Button, Drawer, Typography, Card } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { MenuOutlined } from '@ant-design/icons';
-import { jwtDecode } from 'jwt-decode';
+import Slider from 'react-slick';
+import {jwtDecode } from 'jwt-decode';
 import authService from '../services/authService';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
@@ -12,7 +15,7 @@ const { Meta } = Card;
 function Home({ token, logout }) {
   const [nickname, setNickname] = useState('Kullanıcı');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false); // Ekranın mobil olup olmadığını takip edeceğiz.
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,7 +28,7 @@ function Home({ token, logout }) {
           }
         });
       } catch (error) {
-        console.error("Invalid token: ", error.message);
+        console.error('Invalid token: ', error.message);
       }
     }
   }, [token]);
@@ -73,6 +76,31 @@ function Home({ token, logout }) {
       description: 'Fizik soruları hakkında bilgi edinin.',
     },
   ];
+
+  // Slider ayarları
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3, // Büyük ekran için 3 kart
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1024, // Orta ekran
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768, // Küçük ekran
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
 
   return (
     <Layout>
@@ -135,35 +163,29 @@ function Home({ token, logout }) {
           color: 'white',
         }}
       >
-        <Row justify="center" align="middle" style={{ minHeight: '30vh' }}>
-          <Col>
-            <Title level={5} style={{ textAlign: 'center', color: 'yellow' }}>
-              MERHABA ÖĞRENCİLER
-            </Title>
-            <Title level={1} style={{ textAlign: 'center', color: 'white' }}>
-              Soru Biriktirme Platformuna Hoşgeldiniz
-            </Title>
-            <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: '20px', color: 'white', fontSize: '16px' }}>
-              Burada, karşılaştığınız tüm soruları paylaşabilir ve diğer kullanıcıların deneyimlerinden yararlanarak çözümler bulabilirsiniz. 
-              Herkesin bir şeyler öğrenebileceği ve sorularınıza yanıtlar alabileceğiniz bir topluluk oluşturmayı hedefliyoruz.
-            </Text>
-          </Col>
-        </Row>
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <Title level={5} style={{ color: 'yellow' }}>MERHABA ÖĞRENCİLER</Title>
+          <Title level={1} style={{ color: 'white' }}>Soru Biriktirme Platformuna Hoşgeldiniz</Title>
+          <Text style={{ color: 'white', fontSize: '16px' }}>
+            Burada, karşılaştığınız tüm soruları paylaşabilir ve diğer kullanıcıların deneyimlerinden yararlanarak çözümler bulabilirsiniz.
+          </Text>
+        </div>
 
-        <Row gutter={[16, 16]} justify="center" align="middle" style={{ marginTop: '40px' }}>
+        {/* Slider ile Kartlar */}
+        <Slider {...sliderSettings}>
           {cardsData.map((card, index) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={index}>
+            <div key={index}>
               <Card
                 hoverable
-                style={{ textAlign: 'center', backgroundColor: '#f5222d', color: 'white' }}
+                style={{ textAlign: 'center', backgroundColor: '#f5222d', color: 'white', margin: '10px' }}
                 bodyStyle={{ padding: '20px' }}
               >
                 <div style={{ fontSize: '50px', marginBottom: '10px' }}>{card.icon}</div>
                 <Meta title={card.title} description={card.description} style={{ color: 'white' }} />
               </Card>
-            </Col>
+            </div>
           ))}
-        </Row>
+        </Slider>
       </Content>
     </Layout>
   );
