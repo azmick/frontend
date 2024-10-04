@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Typography, Row, Col } from 'antd'; // Ant Design bileşenleri
+import { Button, Form, Input, Typography, Row, Col, message } from 'antd'; // Ant Design bileşenleri
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
@@ -12,10 +12,16 @@ function Register() {
   const onFinish = async (values) => {
     setLoading(true);
     const { nickname, email, password } = values;
+
     const success = await authService.register(nickname, email, password);
+
     if (success) {
+      message.success('Kayıt başarılı. Giriş yapabilirsiniz.');
       navigate('/login'); // Kayıt başarılıysa login sayfasına yönlendir
+    } else {
+      message.error('Kayıt başarısız. Geçersiz veya zaten kayıtlı e-posta.');
     }
+
     setLoading(false);
   };
 
@@ -31,7 +37,7 @@ function Register() {
           <Form.Item
             name="nickname"
             label="Kullanıcı Adı"
-            rules={[{ required: true, message: 'Please input your nickname!' }]}
+            rules={[{ required: true, message: 'Lütfen kullanıcı adınızı giriniz!' }]}
           >
             <Input placeholder="Kullanıcı Adınızı Giriniz" />
           </Form.Item>
@@ -39,7 +45,10 @@ function Register() {
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, message: 'Lütfen e-postanızı giriniz!' }]}
+            rules={[
+              { required: true, message: 'Lütfen e-postanızı giriniz!' },
+              { type: 'email', message: 'Geçerli bir e-posta giriniz!' },
+            ]}
           >
             <Input placeholder="Email" />
           </Form.Item>
@@ -47,7 +56,7 @@ function Register() {
           <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: 'Şifrenizi girmeyi unutmayın!' }]}
+            rules={[{ required: true, message: 'Lütfen şifrenizi giriniz!' }]}
           >
             <Input.Password placeholder="Password" />
           </Form.Item>

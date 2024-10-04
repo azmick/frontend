@@ -2,27 +2,22 @@ const API_URL = 'http://localhost:5000/auth';
 
 const login = async (email, password) => {
   try {
-    const response = await fetch(`${API_URL}/login`, {
+    const response = await fetch('http://localhost:5000/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
-
-    const data = await response.json();
-
+    
     if (!response.ok) {
-      throw new Error(data.message || 'Login failed');
+      throw new Error('Login failed');
     }
-
-    // Token'ı ve nickname'i kaydet
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('nickname', data.nickname); // Nickname'i de sakla
-
-    return data.token; // Sadece token'ı döndür
+    
+    const data = await response.json();
+    return data;  // Token, userId ve nickname'i döndürüyoruz
   } catch (error) {
-    console.error("Login Error:", error.message);
+    console.error('Error during login:', error);
     return null;
   }
 };
@@ -32,6 +27,12 @@ const login = async (email, password) => {
 // Register işlemi
 const register = async (nickname, email, password) => {
   try {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // E-posta doğrulama deseni
+
+    if (!emailPattern.test(email)) {
+      throw new Error('Geçersiz e-posta formatı.');
+    }
+
     const response = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: {
@@ -43,13 +44,13 @@ const register = async (nickname, email, password) => {
     if (!response.ok) {
       // API tarafından döndürülen hata mesajı varsa gösterelim
       const data = await response.json();
-      throw new Error(data.message || 'Registration failed');
+      throw new Error(data.message || 'Kayıt başarısız.');
     }
 
     // Başarılıysa true döndür
     return true;
   } catch (error) {
-    console.error("Registration Error:", error.message);
+    console.error('Registration Error:', error.message);
     // Hata durumunda false döndür
     return false;
   }
@@ -77,9 +78,11 @@ const getUsernameByEmail = async (email) => {
     return null;
   }
 };
+
 // Logout işlemi
 const logout = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('nickname'); // Nickname'i de temizliyoruz
 };
 
 export default { login, register, logout, getUsernameByEmail };

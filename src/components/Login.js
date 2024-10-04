@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Typography, Row, Col } from 'antd';
+import { Button, Form, Input, Typography, Row, Col, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
 const { Title, Text } = Typography;
 
-function Login({ setToken, setEmail }) {  // setEmail prop'unu da alıyoruz
+function Login({ setToken, setEmail }) {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
     setLoading(true);
-    const { email, password } = values;  // Kullanıcı email ve şifreyi alıyoruz
-    const token = await authService.login(email, password);
-    if (token) {
+    const { email, password } = values;  
+    const response = await authService.login(email, password);  // Servisten yanıt alıyoruz
+    
+    if (response) {
+      const { token, userId, nickname } = response;  // userId ve diğer bilgileri alıyoruz
       setToken(token);
-      setEmail(email);  // Kullanıcının email'ini set ediyoruz
+      setEmail(email);  
       localStorage.setItem('token', token);
-      localStorage.setItem('email', email);  // Email'i de localStorage'da saklıyoruz
+      localStorage.setItem('email', email);  
+      localStorage.setItem('nickname', nickname);  
+      localStorage.setItem('userId', userId);  // userId'yi kaydediyoruz
+  
+      message.success('Giriş başarılı!');
       navigate('/');
+    } else {
+      message.error('Kullanıcı bulunamadı veya şifre hatalı.');
     }
+  
     setLoading(false);
   };
+  
 
   return (
     <Row justify="center" align="middle" style={{ minHeight: '100vh' }}>
@@ -36,7 +46,7 @@ function Login({ setToken, setEmail }) {  // setEmail prop'unu da alıyoruz
           <Form.Item
             name="email"
             label="Email"
-            rules={[{ required: true, message: 'Please input your email!' }]}
+            rules={[{ required: true, message: 'Lütfen e-postanızı giriniz!' }]}
           >
             <Input placeholder="Email" />
           </Form.Item>
@@ -44,7 +54,7 @@ function Login({ setToken, setEmail }) {  // setEmail prop'unu da alıyoruz
           <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: 'Lütfen şifrenizi giriniz!' }]}
           >
             <Input.Password placeholder="Password" />
           </Form.Item>
