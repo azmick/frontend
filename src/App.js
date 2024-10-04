@@ -7,17 +7,27 @@ import authService from './services/authService';
 
 function App() {
   const [token, setToken] = useState(null);
+  const [email, setEmail] = useState(null);  // Kullanıcı email bilgisini tutmak için state
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setToken(token);
+    // Token ve email'i localStorage'dan alıyoruz
+    const storedToken = localStorage.getItem('token');
+    const storedEmail = localStorage.getItem('email');  // Email bilgisini localStorage'dan alıyoruz
+
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    if (storedEmail) {
+      setEmail(storedEmail);
     }
   }, []);
 
   const logout = () => {
     authService.logout();
     setToken(null);
+    setEmail(null);  // Logout işlemi sırasında email'i de sıfırlıyoruz
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');  // Email'i localStorage'dan siliyoruz
   };
 
   return (
@@ -25,9 +35,13 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={token ? <Template token={token} logout={logout} /> : <Navigate to="/login" />}
+          element={token ? (
+            <Template token={token} email={email} logout={logout} />  // Email'i Template'e prop olarak geçiriyoruz
+          ) : (
+            <Navigate to="/login" />
+          )}
         />
-        <Route path="/login" element={<Login setToken={setToken} />} />
+        <Route path="/login" element={<Login setToken={setToken} setEmail={setEmail} />} />  {/* setEmail'i de Login'e geçiriyoruz */}
         <Route path="/register" element={<Register />} />
       </Routes>
     </Router>

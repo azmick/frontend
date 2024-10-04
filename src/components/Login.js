@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Typography, Row, Col } from 'antd'; // Ant Design bileşenleri
+import { Button, Form, Input, Typography, Row, Col } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
 const { Title, Text } = Typography;
 
-function Login({ setToken }) {
-  const [loading, setLoading] = useState(false); // Buton yükleniyor durumu için
-  const navigate = useNavigate(); // Yönlendirme için kullanıyoruz
+function Login({ setToken, setEmail }) {  // setEmail prop'unu da alıyoruz
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
-    setLoading(true); // Yüklenme durumunu başlat
-    const { email, password } = values;
+    setLoading(true);
+    const { email, password } = values;  // Kullanıcı email ve şifreyi alıyoruz
     const token = await authService.login(email, password);
     if (token) {
       setToken(token);
-      navigate('/'); // Başarılı girişte home sayfasına yönlendir
+      setEmail(email);  // Kullanıcının email'ini set ediyoruz
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', email);  // Email'i de localStorage'da saklıyoruz
+      navigate('/');
     }
-    setLoading(false); // Yüklenme durumunu bitir
+    setLoading(false);
   };
 
   return (

@@ -1,25 +1,23 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Button, Drawer } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Menu, Button, Drawer, Modal, Checkbox } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { MenuOutlined } from '@ant-design/icons';
 import Home from './Home';
 import Questions from './Questions';
-import Categories from './Categories';
+import Career from './Career';
 import Contact from './Contact';
 
 const { Header, Content } = Layout;
 
-function Template({ logout }) {
+function Template({ email, logout }) {  // email prop'unu aldık
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState('home'); // Varsayılan olarak anasayfa
+  const [selectedSection, setSelectedSection] = useState('home');  // Varsayılan olarak anasayfa
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
   const navigate = useNavigate();
 
-  const handleMenuClick = (section) => {
-    setSelectedSection(section); // İçeriği değiştirmek için
-    if (isMobile) setIsDrawerOpen(false); // Mobilde drawer'ı kapat
-  };
-
+  // Ekran genişliği değişimini dinleme
   const updateMenuDisplay = () => {
     if (window.innerWidth <= 768) {
       setIsMobile(true);
@@ -28,7 +26,36 @@ function Template({ logout }) {
     }
   };
 
-  window.addEventListener('resize', updateMenuDisplay);
+  useEffect(() => {
+    window.addEventListener('resize', updateMenuDisplay);
+    return () => window.removeEventListener('resize', updateMenuDisplay);
+  }, []);
+
+  // Modal durumunu kontrol eden useEffect
+  useEffect(() => {
+    if (email) {  // Email varsa localStorage'dan modal durumu kontrol ediliyor
+      const dontShow = localStorage.getItem(`dontShowModal_${email}`);
+      if (!dontShow) {
+        setIsModalVisible(true);
+      }
+    }
+  }, [email]);
+
+  const handleModalOk = () => {
+    if (dontShowAgain) {
+      localStorage.setItem(`dontShowModal_${email}`, 'true');  // Kullanıcıya özel modal kaydı yapılıyor
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleCheckboxChange = (e) => {
+    setDontShowAgain(e.target.checked);
+  };
+
+  const handleMenuClick = (section) => {
+    setSelectedSection(section);  // İçeriği değiştirmek için
+    if (isMobile) setIsDrawerOpen(false);  // Mobilde drawer'ı kapat
+  };
 
   const renderContent = () => {
     switch (selectedSection) {
@@ -36,8 +63,8 @@ function Template({ logout }) {
         return <Home />;
       case 'questions':
         return <Questions />;
-      case 'categories':
-        return <Categories />;
+      case 'career':
+        return <Career />;
       case 'contact':
         return <Contact />;
       default:
@@ -68,7 +95,7 @@ function Template({ logout }) {
             >
               <Menu mode="vertical" onClick={() => handleMenuClick('home')}>
                 <Menu.Item key="1" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
-                <Menu.Item key="2" onClick={() => handleMenuClick('categories')}>Kategoriler</Menu.Item>
+                <Menu.Item key="2" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
                 <Menu.Item key="3" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
                 <Menu.Item key="4" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
               </Menu>
@@ -81,7 +108,7 @@ function Template({ logout }) {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
               <Menu.Item key="1" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
-              <Menu.Item key="2" onClick={() => handleMenuClick('categories')}>Kategoriler</Menu.Item>
+              <Menu.Item key="2" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
               <Menu.Item key="3" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
               <Menu.Item key="4" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
             </Menu>
@@ -106,6 +133,24 @@ function Template({ logout }) {
       >
         {renderContent()}
       </Content>
+
+      {/* Modal */}
+      <Modal
+        title="Kariyer Yolculuğu"
+        visible={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Checkbox key="checkbox" onChange={handleCheckboxChange}>
+            Bunu bir daha gösterme
+          </Checkbox>,
+          <Button key="submit" type="primary" onClick={handleModalOk}>
+            Tamam
+          </Button>,
+        ]}
+      >
+        <p>Kariyer yolculuğunda bir adım ileri gitmek istiyorsanız Kariyer sekmesindeki kişilik testi analizini çözmeye davetlisiniz.</p>
+      </Modal>
     </Layout>
   );
 }

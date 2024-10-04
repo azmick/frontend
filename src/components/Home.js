@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Typography, Card, Form, Input, Button, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Typography, Card, Form, Input, Button, message, Modal, Checkbox } from 'antd';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -7,9 +7,11 @@ import 'slick-carousel/slick/slick-theme.css';
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-function Home() {
+function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props olarak alıyoruz.
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const cardsData = [
     {
@@ -68,8 +70,45 @@ function Home() {
     }, 1000);
   };
 
+  useEffect(() => {
+    if (email) {  // E-posta tanımlı olduğunda localStorage kontrolü yap
+      const dontShow = localStorage.getItem(`dontShowModal_${email}`);
+      if (!dontShow) {
+        setIsModalVisible(true);
+      }
+    }
+  }, [email]);  // email değiştiğinde kontrol et
+  
+  const handleModalOk = () => {
+    if (dontShowAgain) {
+      localStorage.setItem(`dontShowModal_${email}`, 'true');  // Her kullanıcıya özgü key
+    }
+    setIsModalVisible(false);
+  };
+
+  const handleCheckboxChange = (e) => {
+    setDontShowAgain(e.target.checked);
+  };
+
   return (
     <div>
+      <Modal
+        title="Kariyer Yolculuğu"
+        visible={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Checkbox key="checkbox" onChange={handleCheckboxChange}>
+            Bunu bir daha gösterme
+          </Checkbox>,
+          <Button key="submit" type="primary" onClick={handleModalOk}>
+            Tamam
+          </Button>,
+        ]}
+      >
+        <p>Kariyer yolculuğunda bir adım ileri gitmek istiyorsanız Kariyer sekmesindeki kişilik testi analizini çözmeye davetlisiniz.</p>
+      </Modal>
+
       <div style={{ textAlign: 'center', padding: '20px 0' }}>
         <Title level={5} style={{ color: 'white' }}>MERHABA ÖĞRENCİLER</Title>
         <Title level={1} style={{ color: 'white' }}>Soru Biriktirme Platformuna Hoşgeldiniz</Title>
@@ -95,7 +134,7 @@ function Home() {
       </Slider>
 
       {/* İletişim Formu */}
-      {/* <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '60px',marginBottom:'40px', borderRadius:'0.5%' }}>
+      <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '60px', marginBottom: '40px', borderRadius: '0.5%' }}>
         <div style={{ textAlign: 'center', color: 'white', marginBottom: '20px' }}>
           <Title level={3} style={{ color: 'black' }}>Bize Ulaşın</Title>
           <Text style={{ color: 'white' }}>Sorularınızı veya geri bildirimlerinizi buradan iletebilirsiniz.</Text>
@@ -141,7 +180,7 @@ function Home() {
             </Button>
           </Form.Item>
         </Form>
-      </div> */}
+      </div>
     </div>
   );
 }
