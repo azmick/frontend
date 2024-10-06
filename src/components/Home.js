@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Card, Form, Input, Button, message, Modal, Checkbox } from 'antd';
 import Slider from 'react-slick';
+import emailjs from 'emailjs-com'; // EmailJS import edildi
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props olarak alıyoruz.
-  const [form] = Form.useForm();
+function Home({ email }) {
+  const [form] = Form.useForm(); // Ant Design formu kullanılıyor
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
@@ -62,26 +63,45 @@ function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props ol
 
   const onFinish = (values) => {
     setLoading(true);
-    // Simulate a server request
-    setTimeout(() => {
-      message.success('Mesajınız başarıyla gönderildi!');
-      form.resetFields();
-      setLoading(false);
-    }, 1000);
-  };
+
+    // EmailJS ile e-posta gönderimi
+    emailjs.send(
+      'service_1jyaxwe', // EmailJS'den aldığın Service ID
+      'template_sxelfj7', // EmailJS'den aldığın Template ID
+      {
+        from_name: values.name,    // Formdan gelen ad değeri
+        reply_to: values.email,    // Formdan gelen e-posta adresi
+        message: values.message,   // Formdan gelen mesaj
+      },
+      'O0zuCq9ojMa2Kgg3r' // EmailJS'den aldığın User ID
+    )
+      .then((result) => {
+        console.log(result.text);
+        message.success('Öneriniz başarıyla gönderildi!');
+        form.resetFields();
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error.text);
+        message.error('Öneri gönderilirken bir hata oluştu.');
+        setLoading(false);
+      });
+};
+
+
 
   useEffect(() => {
-    if (email) {  // E-posta tanımlı olduğunda localStorage kontrolü yap
+    if (email) {
       const dontShow = localStorage.getItem(`dontShowModal_${email}`);
       if (!dontShow) {
         setIsModalVisible(true);
       }
     }
-  }, [email]);  // email değiştiğinde kontrol et
-  
+  }, [email]);
+
   const handleModalOk = () => {
     if (dontShowAgain) {
-      localStorage.setItem(`dontShowModal_${email}`, 'true');  // Her kullanıcıya özgü key
+      localStorage.setItem(`dontShowModal_${email}`, 'true');
     }
     setIsModalVisible(false);
   };
@@ -117,7 +137,6 @@ function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props ol
         </Text>
       </div>
 
-      {/* Slider ile Kartlar */}
       <Slider {...sliderSettings}>
         {cardsData.map((card, index) => (
           <div key={index}>
@@ -133,11 +152,11 @@ function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props ol
         ))}
       </Slider>
 
-      {/* İletişim Formu */}
+      {/* Öneriler ve İstekler Formu */}
       <div style={{ backgroundColor: 'white', padding: '20px', marginTop: '60px', marginBottom: '40px', borderRadius: '0.5%' }}>
         <div style={{ textAlign: 'center', color: 'white', marginBottom: '20px' }}>
-          <Title level={3} style={{ color: 'black' }}>Bize Ulaşın</Title>
-          <Text style={{ color: 'white' }}>Sorularınızı veya geri bildirimlerinizi buradan iletebilirsiniz.</Text>
+          <Title level={3} style={{ color: 'black' }}>Öneriler ve İstekler</Title>
+          <Text style={{ color: 'black' }}>Her türlü öneri ve isteğinizi buradan iletebilirsiniz.</Text>
         </div>
 
         <Form
@@ -145,7 +164,7 @@ function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props ol
           name="contact"
           onFinish={onFinish}
           layout="vertical"
-          style={{ maxWidth: '600px', margin: '0 auto', color: 'white' }}
+          style={{ maxWidth: '600px', margin: '0 auto' }}
         >
           <Form.Item
             name="name"
@@ -168,10 +187,10 @@ function Home({ email }) {  // Her kullanıcının e-posta veya ID'sini props ol
 
           <Form.Item
             name="message"
-            label="Mesajınız"
-            rules={[{ required: true, message: 'Lütfen mesajınızı giriniz!' }]}
+            label="Öneri/İstek"
+            rules={[{ required: true, message: 'Lütfen öneri veya isteğinizi giriniz!' }]}
           >
-            <Input.TextArea rows={4} placeholder="Mesajınız" />
+            <Input.TextArea rows={4} placeholder="Öneri veya isteğinizi buraya yazın" />
           </Form.Item>
 
           <Form.Item>
