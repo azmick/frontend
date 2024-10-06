@@ -8,11 +8,10 @@ const { Content } = Layout;
 function Questions() {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
-  const [uploadedImages, setUploadedImages] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [editingQuestion, setEditingQuestion] = useState(null); // Düzenlemek için seçilen soru
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal için
-  const [newDescription, setNewDescription] = useState(''); // Açıklama güncelleme
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newDescription, setNewDescription] = useState('');
 
   const lessons = ['Matematik', 'Fizik'];
   const topics = {
@@ -20,21 +19,41 @@ function Questions() {
     Fizik: ['Kuvvet', 'Hareket', 'Enerji'],
   };
 
-  // Kullanıcının sorularını çek
+  // Soruları fetch etme fonksiyonu
+  const fetchQuestions = async () => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token) {
+      message.error('Giriş yapmanız gerekiyor!');
+      return;
+    }
+
+    if (selectedLesson && selectedTopic) {
+      const response = await fetch(`http://localhost:5000/auth/questions/${userId}?lesson=${selectedLesson}&topic=${selectedTopic}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,  // Token gönderiliyor
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setQuestions(data);
+      } else {
+        message.error('Soruları alırken bir hata oluştu.');
+      }
+    }
+  };
+
+  // Ders ve Konu seçildiğinde soruları fetch et
   useEffect(() => {
-    const fetchQuestions = async () => {
-      const userId = localStorage.getItem('userId'); // Kullanıcının ID'sini al
-      const response = await fetch(`http://localhost:5000/auth/questions/${userId}`);
-      const data = await response.json();
-      setQuestions(data);
-    };
-  
     fetchQuestions();
-  }, []);
+  }, [selectedLesson, selectedTopic]);
 
   const handleLessonChange = (value) => {
     setSelectedLesson(value);
-    setSelectedTopic(null); // Konu seçiminde ders değiştiğinde sıfırlama
+    setSelectedTopic(null); // Konu sıfırlanır
   };
 
   const handleTopicChange = (value) => {
@@ -43,7 +62,11 @@ function Questions() {
 
   const handleUpload = async ({ file }) => {
     const formData = new FormData();
-    formData.append("image", file);  // Backend'deki 'image' ile eşleşmeli
+    formData.append("image", file);  // Resim dosyasını ekliyoruz.
+    
+    // Ders ve konuyu formData'ya ekliyoruz.
+    formData.append("lesson", selectedLesson); 
+    formData.append("topic", selectedTopic);
   
     const token = localStorage.getItem('token');  // JWT Token'ı localStorage'dan al
   
@@ -56,26 +79,36 @@ function Questions() {
     });
   
     if (response.ok) {
-      console.log('Resim başarıyla yüklendi');
+      message.success('Resim başarıyla yüklendi');
+      // Yükleme sonrası soruları tekrar fetch et
+      fetchQuestions();
     } else {
-      console.error('Resim yükleme hatası:', response.statusText);
+      message.error('Resim yükleme hatası: ' + response.statusText);
     }
   };
   
-  
 
-  // Düzenleme işlemi için Modal açma
+  // Soruları düzenleme modalı açma
   const handleEditQuestion = (question) => {
     setEditingQuestion(question);
     setNewDescription(question.description);
     setIsModalVisible(true);
   };
 
-  // Soru güncelleme
+  // Soruyu güncelleme
   const handleUpdateQuestion = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      message.error('Giriş yapmanız gerekiyor!');
+      return;
+    }
+
     await fetch(`http://localhost:5000/auth/questions/${editingQuestion.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify({ description: newDescription, lesson: selectedLesson, topic: selectedTopic }),
     });
 
@@ -85,11 +118,20 @@ function Questions() {
     setIsModalVisible(false);
   };
 
-  // Soru silme işlemi
+  // Soruyu silme işlemi
   const handleDeleteQuestion = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      message.error('Giriş yapmanız gerekiyor!');
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:5000/auth/questions/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
       });
 
       if (response.ok) {
@@ -106,7 +148,6 @@ function Questions() {
   return (
     <Content style={{ padding: '20px', minHeight: '100vh' }}>
       <Row gutter={[16, 16]} justify="center" align="middle" style={{ marginBottom: '20px' }}>
-        {/* Ders ve Konu Seçimi */}
         <Col xs={24} md={8}>
           <Select placeholder="Ders Seçiniz" onChange={handleLessonChange} style={{ width: '100%' }} value={selectedLesson}>
             {lessons.map((lesson) => (
@@ -128,7 +169,6 @@ function Questions() {
           </Select>
         </Col>
 
-        {/* Resim Yükleme */}
         <Col xs={24} md={2}>
           <Upload customRequest={handleUpload} showUploadList={false} disabled={!selectedLesson || !selectedTopic}>
             <Button icon={<UploadOutlined />} type="primary">
@@ -138,13 +178,20 @@ function Questions() {
         </Col>
       </Row>
 
-      {/* Yüklenmiş Sorular */}
       <Row gutter={[16, 16]} style={{ marginTop: '20px' }}>
-        {questions.map((question) => (
+        {questions.length > 0 ? questions.map((question) => (
           <Col xs={24} md={8} key={question.id}>
             <Card
               hoverable
-              cover={<img src={`http://localhost:5000/uploads/${question.images[0]}`} alt={`uploaded-${question.id}`} style={{ width: '100%' }} />            }
+              cover={question.images && question.images.length > 0 ? (
+                <img
+                  src={`http://localhost:5000/uploads/${question.images[0]}`}
+                  alt={`uploaded-${question.id}`}
+                  style={{ width: '100%' }}
+                />
+              ) : (
+                <div>Resim bulunamadı</div>
+              )}
               actions={[
                 <Button onClick={() => handleEditQuestion(question)}>Düzenle</Button>,
                 <Button onClick={() => handleDeleteQuestion(question.id)}>Sil</Button>,
@@ -153,10 +200,9 @@ function Questions() {
               <p>{question.description}</p>
             </Card>
           </Col>
-        ))}
+        )) : <div>Soru bulunamadı.</div>}
       </Row>
 
-      {/* Düzenleme Modal */}
       <Modal visible={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={handleUpdateQuestion}>
         <Input.TextArea rows={4} value={newDescription} onChange={(e) => setNewDescription(e.target.value)} />
       </Modal>
