@@ -9,10 +9,10 @@ import Contact from './Contact';
 
 const { Header, Content } = Layout;
 
-function Template({ email, logout }) {  // email prop'unu aldık
+function Template({ email, logout }) {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState('home');  // Varsayılan olarak anasayfa
+  const [selectedSection, setSelectedSection] = useState('home');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const navigate = useNavigate();
@@ -31,19 +31,24 @@ function Template({ email, logout }) {  // email prop'unu aldık
     return () => window.removeEventListener('resize', updateMenuDisplay);
   }, []);
 
-  // Modal durumunu kontrol eden useEffect
   useEffect(() => {
-    if (email) {  // Email varsa localStorage'dan modal durumu kontrol ediliyor
+    if (email) {
       const dontShow = localStorage.getItem(`dontShowModal_${email}`);
       if (!dontShow) {
         setIsModalVisible(true);
       }
     }
+
+    // Sayfa yenilendiğinde localStorage'dan son seçilen sekmeyi al
+    const savedSection = localStorage.getItem('selectedSection');
+    if (savedSection) {
+      setSelectedSection(savedSection);
+    }
   }, [email]);
 
   const handleModalOk = () => {
     if (dontShowAgain) {
-      localStorage.setItem(`dontShowModal_${email}`, 'true');  // Kullanıcıya özel modal kaydı yapılıyor
+      localStorage.setItem(`dontShowModal_${email}`, 'true');
     }
     setIsModalVisible(false);
   };
@@ -54,7 +59,8 @@ function Template({ email, logout }) {  // email prop'unu aldık
 
   const handleMenuClick = (section) => {
     setSelectedSection(section);  // İçeriği değiştirmek için
-    if (isMobile) setIsDrawerOpen(false);  // Mobilde drawer'ı kapat
+    localStorage.setItem('selectedSection', section);  // Seçilen sekmeyi localStorage'a kaydet
+    if (isMobile) setIsDrawerOpen(false);
   };
 
   const renderContent = () => {
@@ -93,11 +99,11 @@ function Template({ email, logout }) {  // email prop'unu aldık
               onClose={() => setIsDrawerOpen(false)}
               open={isDrawerOpen}
             >
-              <Menu mode="vertical" onClick={() => handleMenuClick('home')}>
-                <Menu.Item key="1" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
-                <Menu.Item key="2" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
-                <Menu.Item key="3" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
-                <Menu.Item key="4" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
+              <Menu mode="vertical" selectedKeys={[selectedSection]}>
+                <Menu.Item key="home" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
+                <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
+                <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
+                <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
               </Menu>
               <Button type="primary" block onClick={logout} style={{ marginTop: '10px' }}>
                 Çıkış Yap
@@ -106,11 +112,11 @@ function Template({ email, logout }) {  // email prop'unu aldık
           </>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']}>
-              <Menu.Item key="1" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
-              <Menu.Item key="2" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
-              <Menu.Item key="3" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
-              <Menu.Item key="4" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
+            <Menu theme="dark" mode="horizontal" selectedKeys={[selectedSection]}>
+              <Menu.Item key="home" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
+              <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
+              <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
+              <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
             </Menu>
             <Button type="primary" onClick={logout} style={{ marginLeft: '20px' }}>
               Çıkış Yap

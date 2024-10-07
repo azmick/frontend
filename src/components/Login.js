@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Typography, Row, Col, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
@@ -13,7 +13,7 @@ function Login({ setToken, setEmail }) {
     setLoading(true);
     const { email, password } = values;  
     const response = await authService.login(email, password);  // Servisten yanıt alıyoruz
-    
+
     if (response) {
       const { token, userId, nickname } = response;  // userId ve diğer bilgileri alıyoruz
       setToken(token);
@@ -28,7 +28,6 @@ function Login({ setToken, setEmail }) {
     } else {
       message.error('Kullanıcı bulunamadı veya şifre hatalı.');
     }
-  
     setLoading(false);
   };
   

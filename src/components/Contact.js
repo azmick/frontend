@@ -1,10 +1,42 @@
-import React from 'react';
-import { Layout, Row, Col, Form, Input, Button } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Row, Col, Form, Input, Button, message } from 'antd';
 import { PhoneOutlined } from '@ant-design/icons';
+import emailjs from 'emailjs-com'; // EmailJS import edildi
 
 const { Content } = Layout;
 
 function Contact() {
+  const [form] = Form.useForm();  // Ant Design form kontrolü
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = (values) => {
+    setLoading(true);
+
+    // EmailJS ile e-posta gönderimi
+    emailjs
+      .send(
+        'service_1jyaxwe', // EmailJS'den aldığınız Service ID
+        'template_sxelfj7', // EmailJS'den aldığınız Template ID
+        {
+          from_name: values.name,    // Formdan gelen ad değeri
+          reply_to: values.email,    // Formdan gelen e-posta adresi
+          message: values.message,   // Formdan gelen mesaj
+        },
+        'O0zuCq9ojMa2Kgg3r' // EmailJS'den aldığınız User ID
+      )
+      .then((result) => {
+        console.log(result.text);
+        message.success('Mesajınız başarıyla gönderildi!');
+        form.resetFields();
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error.text);
+        message.error('Mesaj gönderilirken bir hata oluştu.');
+        setLoading(false);
+      });
+  };
+
   return (
     <Content style={{ padding: '50px' }}>
       <Row gutter={[32, 32]} justify="center">
@@ -12,8 +44,10 @@ function Contact() {
         <Col xs={24} md={18}>
           <h2 style={{ textAlign: 'center', color: 'white' }}>İletişim Formu</h2>
           <Form
+            form={form} // Form kontrolü
             name="contact_form"
             layout="vertical"
+            onFinish={onFinish}  // Form submit edildiğinde çalışacak fonksiyon
             style={{
               backgroundColor: '#fff',
               padding: '30px',
@@ -45,7 +79,7 @@ function Contact() {
                   <Input.TextArea rows={4} placeholder="Mesajınızı buraya yazın" />
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" block>
+                  <Button type="primary" htmlType="submit" block loading={loading}>
                     Gönder
                   </Button>
                 </Form.Item>

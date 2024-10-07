@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Upload, Select, Row, Col, Card, Input, Modal, message } from 'antd';
+import { Layout, Button, Upload, Select, Row, Col, Card, Input, Modal, message, Empty } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -33,7 +33,7 @@ function Questions() {
       const response = await fetch(`http://localhost:5000/auth/questions/${userId}?lesson=${selectedLesson}&topic=${selectedTopic}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,  // Token gönderiliyor
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -62,31 +62,27 @@ function Questions() {
 
   const handleUpload = async ({ file }) => {
     const formData = new FormData();
-    formData.append("image", file);  // Resim dosyasını ekliyoruz.
-    
-    // Ders ve konuyu formData'ya ekliyoruz.
-    formData.append("lesson", selectedLesson); 
+    formData.append("image", file);
+    formData.append("lesson", selectedLesson);
     formData.append("topic", selectedTopic);
   
-    const token = localStorage.getItem('token');  // JWT Token'ı localStorage'dan al
+    const token = localStorage.getItem('token');
   
     const response = await fetch('http://localhost:5000/auth/upload-question', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`  // Token'ı 'Authorization' başlığına ekle
+        'Authorization': `Bearer ${token}`
       },
-      body: formData,  // FormData ile gönderiyoruz
+      body: formData,
     });
   
     if (response.ok) {
       message.success('Resim başarıyla yüklendi');
-      // Yükleme sonrası soruları tekrar fetch et
       fetchQuestions();
     } else {
       message.error('Resim yükleme hatası: ' + response.statusText);
     }
   };
-  
 
   // Soruları düzenleme modalı açma
   const handleEditQuestion = (question) => {
@@ -200,7 +196,13 @@ function Questions() {
               <p>{question.description}</p>
             </Card>
           </Col>
-        )) : <div>Soru bulunamadı.</div>}
+        )) : (
+          <Col xs={24} style={{ textAlign: 'center', padding: '50px' }}>
+            <Empty 
+              description={<span style={{ color: 'white' }}>Henüz soru bulunamadı.</span>} 
+            />
+          </Col>
+        )}
       </Row>
 
       <Modal visible={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={handleUpdateQuestion}>

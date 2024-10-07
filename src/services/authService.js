@@ -1,8 +1,9 @@
 const API_URL = 'http://localhost:5000/auth';
 
+// Login işlemi
 const login = async (email, password) => {
   try {
-    const response = await fetch('http://localhost:5000/auth/login', {
+    const response = await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -21,8 +22,6 @@ const login = async (email, password) => {
     return null;
   }
 };
-
-
 
 // Register işlemi
 const register = async (nickname, email, password) => {
@@ -56,6 +55,7 @@ const register = async (nickname, email, password) => {
   }
 };
 
+// Kullanıcı adı alma işlemi
 const getUsernameByEmail = async (email) => {
   try {
     const response = await fetch(`${API_URL}/get-username`, {
@@ -79,10 +79,36 @@ const getUsernameByEmail = async (email) => {
   }
 };
 
+const checkToken = async (token) => {
+  console.log('checkToken called with token:', token); // Token fonksiyona doğru geliyor mu?
+  try {
+    const response = await fetch(`${API_URL}/verify-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Token verification failed:', response.status);
+      throw new Error('Token is invalid or expired');
+    }
+
+    console.log('Token verification succeeded');
+    return true;
+  } catch (error) {
+    console.error('Error verifying token:', error.message);
+    return false;
+  }
+};
+
+
 // Logout işlemi
 const logout = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('email'); // Email'i temizliyoruz
   localStorage.removeItem('nickname'); // Nickname'i de temizliyoruz
 };
 
-export default { login, register, logout, getUsernameByEmail };
+export default { login, register, logout, getUsernameByEmail, checkToken };

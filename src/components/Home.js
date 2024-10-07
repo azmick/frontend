@@ -4,6 +4,7 @@ import Slider from 'react-slick';
 import emailjs from 'emailjs-com'; // EmailJS import edildi
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { Meta } = Card;
@@ -13,6 +14,17 @@ function Home({ email }) {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log("Token value:", token); // Token'ı kontrol et
+  
+    if (!token || token === 'undefined') {
+      navigate('/login');
+    }
+  }, [navigate]);
+  
 
   const cardsData = [
     {
@@ -86,9 +98,7 @@ function Home({ email }) {
         message.error('Öneri gönderilirken bir hata oluştu.');
         setLoading(false);
       });
-};
-
-
+  };
 
   useEffect(() => {
     if (email) {
