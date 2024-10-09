@@ -6,6 +6,7 @@ import Home from './Home';
 import Questions from './Questions';
 import Career from './Career';
 import Contact from './Contact';
+import QuestBot from './QuestBot'; // QuestBot bileşenini ekliyoruz
 
 const { Header, Content } = Layout;
 
@@ -73,6 +74,8 @@ function Template({ email, logout }) {
         return <Career />;
       case 'contact':
         return <Contact />;
+      case 'questbot': // QuestBot sekmesi
+        return <QuestBot />;
       default:
         return <Home />;
     }
@@ -104,6 +107,7 @@ function Template({ email, logout }) {
                 <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
                 <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
                 <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
+                <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')}>QuestBot</Menu.Item> {/* QuestBot sekmesi */}
               </Menu>
               <Button type="primary" block onClick={logout} style={{ marginTop: '10px' }}>
                 Çıkış Yap
@@ -117,6 +121,7 @@ function Template({ email, logout }) {
               <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
               <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
               <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
+              <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')}>QuestBot</Menu.Item> {/* QuestBot sekmesi */}
             </Menu>
             <Button type="primary" onClick={logout} style={{ marginLeft: '20px' }}>
               Çıkış Yap
