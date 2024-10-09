@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Button, Radio, message } from 'antd';
 
 const { TabPane } = Tabs;
-const API_URL = 'http://localhost:5000/auth';
+const API_URL = 'http://119.8.172.184:5000/auth';
 
 // Meslek ve kişilik özellikleri verileri
 const careersData = [
