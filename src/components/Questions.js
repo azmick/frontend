@@ -30,7 +30,7 @@ function Questions() {
     }
 
     if (selectedLesson && selectedTopic) {
-      const response = await fetch(`http://localhost:5000/auth/questions/${userId}?lesson=${selectedLesson}&topic=${selectedTopic}`, {
+      const response = await fetch(`http://119.8.172.184:5000/auth/questions/${userId}?lesson=${selectedLesson}&topic=${selectedTopic}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -68,7 +68,7 @@ function Questions() {
   
     const token = localStorage.getItem('token');
   
-    const response = await fetch('http://localhost:5000/auth/upload-question', {
+    const response = await fetch('http://119.8.172.184:5000/auth/upload-question', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -99,7 +99,7 @@ function Questions() {
       return;
     }
 
-    await fetch(`http://localhost:5000/auth/questions/${editingQuestion.id}`, {
+    await fetch(`http://119.8.172.184:5000/auth/questions/${editingQuestion.id}`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ function Questions() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/auth/questions/${id}`, {
+      const response = await fetch(`http://119.8.172.184:5000/auth/questions/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -181,7 +181,7 @@ function Questions() {
               hoverable
               cover={question.images && question.images.length > 0 ? (
                 <img
-                  src={`http://localhost:5000/uploads/${question.images[0]}`}
+                  src={`http://119.8.172.184:5000/uploads/${question.images[0]}`}
                   alt={`uploaded-${question.id}`}
                   style={{ width: '100%' }}
                 />

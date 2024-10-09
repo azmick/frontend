@@ -12,7 +12,7 @@ const QuestBot = () => {
     setResponse('');
 
     try {
-      const res = await fetch('http://localhost:5000/questbot', {
+      const res = await fetch('http://119.8.172.184:5000/questbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -69,7 +69,7 @@ function TestResult({ token }) {
   useEffect(() => {
     const fetchTestResult = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/auth/get-test`, {
+        const response = await fetch(`http://119.8.172.184:5000/auth/get-test`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
