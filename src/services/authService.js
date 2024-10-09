@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/auth';
+const API_URL = 'http://119.8.172.184:5000/auth';
 
 // Login işlemi
 const login = async (email, password) => {

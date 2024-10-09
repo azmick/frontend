@@ -83,7 +83,7 @@ function Template({ email, logout }) {
 
   return (
     <Layout>
-      <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img
             src="/logo.png"
@@ -107,7 +107,7 @@ function Template({ email, logout }) {
                 <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
                 <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
                 <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
-                <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')}>QuestBot</Menu.Item> {/* QuestBot sekmesi */}
+                <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')} >QuestBot</Menu.Item> {/* QuestBot sekmesi */}
               </Menu>
               <Button type="primary" block onClick={logout} style={{ marginTop: '10px' }}>
                 Çıkış Yap
@@ -115,13 +115,13 @@ function Template({ email, logout }) {
             </Drawer>
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Menu theme="dark" mode="horizontal" selectedKeys={[selectedSection]}>
+          <div style={{ display: 'flex', alignItems: 'center' }} >
+            <Menu theme="dark" mode="horizontal" selectedKeys={[selectedSection]} >
               <Menu.Item key="home" onClick={() => handleMenuClick('home')}>Anasayfa</Menu.Item>
               <Menu.Item key="career" onClick={() => handleMenuClick('career')}>Kariyer</Menu.Item>
               <Menu.Item key="questions" onClick={() => handleMenuClick('questions')}>Sorular</Menu.Item>
               <Menu.Item key="contact" onClick={() => handleMenuClick('contact')}>İletişim</Menu.Item>
-              <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')}>QuestBot</Menu.Item> {/* QuestBot sekmesi */}
+              <Menu.Item key="questbot" onClick={() => handleMenuClick('questbot')} >QuestBot</Menu.Item> {/* QuestBot sekmesi */}
             </Menu>
             <Button type="primary" onClick={logout} style={{ marginLeft: '20px' }}>
               Çıkış Yap
